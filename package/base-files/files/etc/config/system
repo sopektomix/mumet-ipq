@@ -1,0 +1,70 @@
+
+config system
+	option hostname 'MumetWRT'
+	option timezone '<+08>-8'
+	option ttylogin '0'
+	option log_size '128'
+	option urandom_seed '0'
+	option description 'Qmodem '
+	option notes 'Murah Meriah Team'
+	option zonename 'Asia/Kuching'
+	option log_proto 'udp'
+	option conloglevel '8'
+	option cronloglevel '5'
+	option zram_comp_algo 'lzo'
+
+config timeserver 'ntp'
+	list server 'ntp.tencent.com'
+	list server 'ntp1.aliyun.com'
+	list server 'ntp.ntsc.ac.cn'
+	list server 'cn.ntp.org.cn'
+
+config led 'led_wan'
+	option name 'WAN'
+	option sysfs 'green:internet'
+	option trigger 'netdev'
+	option dev 'wwan0'
+	list mode 'link'
+	list mode 'tx'
+	list mode 'rx'
+
+config led 'led_wan_port_link'
+	option name 'WAN-PORT-LINK'
+	option sysfs '90000.mdio-1:1c:green:wan'
+	option trigger 'netdev'
+	option mode 'tx rx link_10 link_100 link_1000 link_2500'
+	option dev 'wan'
+
+config imm_init
+	option ipv6 '2'
+	option anon_mount '1'
+	option lang '1'
+	option system_chn '1'
+	option opkg_mirror 'https://mirrors.vsean.net/openwrt'
+
+config led
+	option name 'Phone'
+	option sysfs 'green:phone'
+	option trigger 'netdev'
+	option dev 'wan'
+	list mode 'link'
+	list mode 'tx'
+	list mode 'rx'
+
+config led
+	option name 'Wi-Fi'
+	option sysfs 'green:wifi'
+	option trigger 'netdev'
+	option dev 'phy0-ap0'
+	list mode 'link'
+	list mode 'tx'
+	list mode 'rx'
+
+config led 'nipq__led9'
+	option name '4-1_net_indicator'
+	option sysfs 'ipq::led9'
+	option trigger 'netdev'
+	option dev 'wwan0_1'
+	option mode 'tx rx'
+
+

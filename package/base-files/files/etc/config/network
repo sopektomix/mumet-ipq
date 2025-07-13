@@ -1,0 +1,53 @@
+
+config interface 'loopback'
+	option device 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+	option ula_prefix 'fdb0:d40a:1782::/48'
+	option packet_steering '2'
+	option steering_flows '1024'
+
+config device
+	option name 'br-lan'
+	option type 'bridge'
+	list ports 'lan1'
+	list ports 'lan2'
+	list ports 'lan3'
+	list ports 'lan4'
+	list ports 'wan'
+
+config interface 'lan'
+	option device 'br-lan'
+	option proto 'static'
+	option ipaddr '192.168.1.1'
+	option netmask '255.255.255.0'
+	option ip6assign '60'
+	list dns '1.1.1.1'
+	list dns '1.0.0.1'
+
+config interface 'wwan'
+	option proto 'quectel'
+	option auth 'none'
+	option delay '10'
+	option mtu '1500'
+	option pdptype 'ipv4v6'
+	option device '/dev/cdc-wdm0'
+	option apn 'internet'
+	list dns '1.1.1.1'
+	list dns '1.0.0.1'
+
+config interface 'wan'
+	option proto 'dhcp'
+	option device 'wwan0_1'
+
+config interface 'wan6'
+	option proto 'dhcpv6'
+	option device 'wwan0_1'
+	option reqaddress 'try'
+	option reqprefix 'auto'
+	option norelease '1'
+
+
