@@ -1,0 +1,67 @@
+#!/bin/bash
+#===================================================================#
+# File name: 99-init-settings.sh                                    #
+# Description: This script will be executed during the first boot   #                                           #
+#===================================================================#
+
+
+# value usb driver
+set_usb=$(mmcli -m 0 | grep device: | awk '{print $4}')
+
+# fix opkg update signature check
+cp /etc/opkg/distfeeds.conf /root/distfeeds.conf.bkp;cat <<EOF > /etc/opkg/distfeeds.conf
+src/gz openwrt_core https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/qualcommax/ipq807x/packages
+src/gz openwrt_base https://downloads.openwrt.org/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/base
+src/gz openwrt_luci https://downloads.openwrt.org/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/luci
+src/gz openwrt_packages https://downloads.openwrt.org/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/packages
+src/gz openwrt_routing https://downloads.openwrt.org/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/routing
+src/gz openwrt_telephony https://downloads.openwrt.org/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/telephony
+EOF
+sed -i 's/^option check_signature/#&/' /etc/opkg.conf;opkg update;opkg install openwrt-keyring;sed -i 's/^#\s*option check_signature/option check_signature/' /etc/opkg.conf
+
+#---------------------------------------------------------------------------------------------------------------------------------
+
+set_tty=$(ls /dev/ttyUSB* | sort -V | tail -n 1)
+
+#---------------------------------------------------------------------------------------------------------------------------------
+
+# Setup incoming message sms
+uci set sms_tool_js.cfg016271.storage='ME'uci set sms_tool_js.cfg016271.coding='auto'uci set sms_tool_js.cfg016271.checktime='10'uci set sms_tool_js.cfg016271.prestart='6'uci set sms_tool_js.cfg016271.ledtype='D'
+uci commit sms_tool_js
+
+#---------------------------------------------------------------------------------------------------------------------------------
+
+# Tambahkan antarmuka baru ke vnstat.cfg015065
+uci add_list vnstat.cfg015065.interface='br-lan'
+uci add_list vnstat.cfg015065.interface='wwan0'
+uci add_list vnstat.cfg015065.interface='wwan0_1'
+uci commit vnstat
+
+#---------------------------------------------------------------------------------------------------------------------------------
+
+#Fix vnstat
+sed -i "s/DatabaseDir \"\/var\/lib\/vnstat\"/DatabaseDir \"\/etc\/vnstat\"/g" /etc/vnstat.conf && sed -i "s/eth0/$interface/g" /etc/vnstat.conf && /etc/init.d/vnstat start && vnstat -u -i $interface && /etc/init.d/vnstat enable
+
+#---------------------------------------------------------------------------------------------------------------------------------
+
+# value usb driver
+set_usb=$(mmcli -m 0 | grep device: | awk '{print $4}')
+
+#---------------------------------------------------------------------------------------------------------------------------------
+
+# setup adblock
+uci set adblock.global.adb_trigger='lan'
+uci commit adblock
+
+#---------------------------------------------------------------------------------------------------------------------------------
+
+# Setup incoming message sms
+uci set sms_tool_js.cfg016271.storage='ME'uci set sms_tool_js.cfg016271.coding='auto'uci set sms_tool_js.cfg016271.checktime='10'uci set sms_tool_js.cfg016271.prestart='6'uci set sms_tool_js.cfg016271.ledtype='D'
+uci commit sms_tool_js
+
+#---------------------------------------------------------------------------------------------------------------------------------
+
+sleep 1
+
+exit 0
+
